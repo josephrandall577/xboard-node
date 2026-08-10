@@ -526,6 +526,26 @@ func TestBuildConfig(t *testing.T) {
 	assertMapValue(t, inbounds[0], "type", "shadowsocks")
 }
 
+func TestBuildConfig_CustomOutboundBindAddressOverridesListenIP(t *testing.T) {
+	kcfg := config.KernelConfig{
+		CustomOutbound: []map[string]any{{
+			"type":               "direct",
+			"tag":                "direct",
+			"inet4_bind_address": "192.0.2.10",
+		}},
+	}
+	nc := &panel.NodeConfig{
+		Protocol:   "shadowsocks",
+		ListenIP:   "192.0.2.20",
+		ServerPort: 111,
+		Cipher:     "aes-128-gcm",
+	}
+
+	cfg := buildConfig(kcfg, testNodeSpec(nc), testUsers, kernel.TLSCert{})
+	inbound := cfg["inbounds"].([]M)[0]
+	assertMapValue(t, inbound, "listen", "192.0.2.10")
+}
+
 func TestBuildConfig_OutboundPriority(t *testing.T) {
 	kcfg := config.KernelConfig{
 		LogLevel: "info",

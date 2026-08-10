@@ -70,6 +70,12 @@ func buildConfig(kcfg config.KernelConfig, nc *model.NodeSpec, users []model.Use
 
 	inbound := buildInbound(nc, users, tc)
 	if inbound != nil {
+		for _, outbound := range kcfg.CustomOutbound {
+			if address, ok := outbound["sendThrough"].(string); ok && address != "" {
+				inbound["listen"] = address
+				break
+			}
+		}
 		cfg["inbounds"] = []M{inbound}
 	} else {
 		nlog.Core().Warn("xray: unsupported protocol, no inbound configured — node will not accept connections",

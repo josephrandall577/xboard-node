@@ -55,6 +55,12 @@ func buildConfig(kcfg config.KernelConfig, nc *model.NodeSpec, users []model.Use
 
 	inbound := buildInbound(nc, users, tc)
 	if inbound != nil {
+		for _, outbound := range kcfg.CustomOutbound {
+			if address, ok := outbound["inet4_bind_address"].(string); ok && address != "" {
+				inbound["listen"] = address
+				break
+			}
+		}
 		cfg["inbounds"] = []M{inbound}
 	}
 

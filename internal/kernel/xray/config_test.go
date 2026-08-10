@@ -82,6 +82,27 @@ func TestBuildConfig_OutboundPriority(t *testing.T) {
 	}
 }
 
+func TestBuildConfig_CustomOutboundSendThroughOverridesListenIP(t *testing.T) {
+	kcfg := config.KernelConfig{
+		CustomOutbound: []map[string]any{{
+			"protocol":    "freedom",
+			"tag":         "direct",
+			"sendThrough": "192.0.2.10",
+		}},
+	}
+	nc := &panel.NodeConfig{
+		Protocol:   "vmess",
+		ListenIP:   "192.0.2.20",
+		ServerPort: 10086,
+	}
+
+	cfg := buildConfig(kcfg, testNodeSpec(nc), testUsers, kernel.TLSCert{})
+	inbound := cfg["inbounds"].([]M)[0]
+	if got := inbound["listen"]; got != "192.0.2.10" {
+		t.Fatalf("listen: got %v, want 192.0.2.10", got)
+	}
+}
+
 func TestBuildConfig_AllProtocols_ValidJSON(t *testing.T) {
 	protocols := []struct {
 		name string
