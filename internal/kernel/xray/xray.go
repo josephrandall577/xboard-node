@@ -15,9 +15,9 @@ import (
 	"github.com/xtls/xray-core/common/protocol"
 	"github.com/xtls/xray-core/common/uuid"
 	xrayCore "github.com/xtls/xray-core/core"
+	featurebandwidth "github.com/xtls/xray-core/features/bandwidth"
 	"github.com/xtls/xray-core/features/inbound"
 	"github.com/xtls/xray-core/features/stats"
-	featurebandwidth "github.com/xtls/xray-core/features/bandwidth"
 	"github.com/xtls/xray-core/infra/conf/serial"
 	xrayProxy "github.com/xtls/xray-core/proxy"
 	"github.com/xtls/xray-core/proxy/shadowsocks"
@@ -32,8 +32,8 @@ import (
 	"github.com/cedar2025/xboard-node/internal/config"
 	"github.com/cedar2025/xboard-node/internal/kernel"
 	"github.com/cedar2025/xboard-node/internal/kernel/geodata"
-	"github.com/cedar2025/xboard-node/internal/nlog"
 	"github.com/cedar2025/xboard-node/internal/model"
+	"github.com/cedar2025/xboard-node/internal/nlog"
 )
 
 const (
@@ -314,7 +314,7 @@ func (x *Xray) AddUsers(users []model.UserSpec) (int, error) {
 		x.users = merged
 		x.mu.Unlock()
 		x.updateDispatcherLimits(merged)
-	x.updateBandwidthLimits(merged)
+		x.updateBandwidthLimits(merged)
 		return 0, nil
 	}
 
@@ -602,7 +602,7 @@ func parseCipherType(cipher string) shadowsocks.CipherType {
 	case "xchacha20-ietf-poly1305", "xchacha20-poly1305":
 		return shadowsocks.CipherType_XCHACHA20_POLY1305
 	case "none", "plain":
-		return shadowsocks.CipherType_NONE
+		return shadowsocks.CipherType_UNKNOWN
 	default:
 		return shadowsocks.CipherType_AES_256_GCM
 	}

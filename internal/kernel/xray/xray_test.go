@@ -162,7 +162,6 @@ func TestXraySetSpeedLimitFuncUsesPatchedCorePath(t *testing.T) {
 	}
 }
 
-
 func TestXrayCapabilities(t *testing.T) {
 	x := New(config.KernelConfig{Type: "xray"})
 	caps := x.Capabilities()
@@ -173,7 +172,6 @@ func TestXrayCapabilities(t *testing.T) {
 		t.Fatalf("unexpected force-close xray capabilities: %+v", caps)
 	}
 }
-
 
 func TestXrayUpdateBandwidthLimitsWritesPatchedCoreFeature(t *testing.T) {
 	inst := new(xrayCore.Instance)
@@ -189,7 +187,6 @@ func TestXrayUpdateBandwidthLimitsWritesPatchedCoreFeature(t *testing.T) {
 		t.Fatal("expected patched bandwidth feature to receive user limiter")
 	}
 }
-
 
 func TestXrayUpdateBandwidthLimitsUsesSpeedLimitFunc(t *testing.T) {
 	inst := new(xrayCore.Instance)
@@ -213,7 +210,6 @@ func TestXrayUpdateBandwidthLimitsUsesSpeedLimitFunc(t *testing.T) {
 	}
 }
 
-
 func TestXrayUpdateBandwidthLimitsFallsBackToUserSpeed(t *testing.T) {
 	inst := new(xrayCore.Instance)
 	bm := featurebandwidth.New()
@@ -228,7 +224,6 @@ func TestXrayUpdateBandwidthLimitsFallsBackToUserSpeed(t *testing.T) {
 		t.Fatal("expected fallback limiter derived from user speed")
 	}
 }
-
 
 func TestXrayUpdateUsersLimitOnlyRefreshesDispatcherAndBandwidth(t *testing.T) {
 	x := New(config.KernelConfig{Type: "xray"})
@@ -254,6 +249,13 @@ func TestXrayUpdateUsersLimitOnlyRefreshesDispatcherAndBandwidth(t *testing.T) {
 	}
 	if bm.GetUserLimiter(userEmail(1)) == nil {
 		t.Fatal("expected bandwidth limiter to be refreshed for unchanged user set")
+	}
+}
+
+func TestToMemoryUserRejectsRemovedPlainShadowsocksCipher(t *testing.T) {
+	_, err := toMemoryUser("shadowsocks", &model.NodeSpec{Cipher: "none"}, model.UserSpec{UUID: "password"})
+	if err == nil {
+		t.Fatal("plain Shadowsocks cipher should be rejected")
 	}
 }
 
